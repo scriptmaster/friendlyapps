@@ -25,6 +25,9 @@
 	</div>
 	<div id="content">
 		<div class="inner">
+			
+			<h2>Current locations of your friends and your travel plan</h2>
+			
 			<ul id="locations">
 			<repeat group="{@locations}" key="{@location}" value="{@names}">
 				<li>
@@ -44,7 +47,7 @@
 							</false>
 						</check>
 					</repeat>
-					live{count(@names)==1?'s':''} here.
+					{count(@names)==1?'is':'are'} located here.
 					</div>
 				</li>
 			</repeat>

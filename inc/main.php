@@ -253,27 +253,9 @@ if ( $accessedFromAppsURL ) {
 			}
 			echo '</ul>';
 		}
-		
-		
-		// print_r( $facebook->api( array('method'=>'fql.query', 'query'=>'SELECT post_id, message FROM stream WHERE source_id=me()') ) );
-		// echo '<hr />';
-		
-		
-		// $my_likes = $facebook->api( array( 'method'=>'fql.query', 'query'=>'SELECT user_id FROM like WHERE post_id IN (SELECT post_id FROM stream WHERE source_id=me() ) and user_id!=me()' ) );
-		// print_r( $my_likes );
-		// echo '<hr />';
-		
-		// $my_comments = $facebook->api( array( 'method'=>'fql.query', 'query'=>'SELECT fromid, text FROM comment WHERE post_id IN (SELECT post_id FROM stream WHERE source_id=me() ) and fromid!=me()' ) );
-		// print_r( $my_comments );
-		// echo '<hr />';
-		
-		// print_r( $facebook->api( array('method'=>'fql.query', 'query'=>'SELECT uid, name, pic_square FROM user WHERE uid = me() OR uid IN (SELECT uid2 FROM friend WHERE uid1 = me())') ) );
 
-
-		// print_r( $facebook->api_client->fql_query('SELECT user_id FROM like WHERE object_id="$uid"') );
 	}
-	// echo 'Hello Facebook User';
-	// $signed_request = $_POST['signed_request'];
+
 } else {
 	//
 }
