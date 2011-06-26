@@ -1,0 +1,59 @@
+<html>
+<head>
+	<title>{@title}</title>
+
+	<script src="http://code.jquery.com/jquery-1.6.1.min.js" type="text/javascript" ></script>
+	<script src="get/scripts.js" type="text/javascript" ></script>
+
+	<link href="get/index.css" rel="stylesheet" type="text/css" />
+
+	<script>
+		var my = {
+			name: '{@my.name}',
+			pic_square: '{@my.pic_square}'
+		}
+	</script>
+
+</head>
+<body>
+	<div id="header">
+		<div class="inner">
+			<div id="my_image"><img src="{@my.pic_square}" title="{@my.name}'s Pic" alt="{@my.name}'s Pic" /></div>
+			<h1 id="my">{@my.name}<div>{@my_location}</div></h1>
+			<br clear="both" />
+		</div>
+	</div>
+	<div id="content">
+		<div class="inner">
+			<ul id="locations">
+			<repeat group="{@locations}" key="{@location}" value="{@names}">
+				<li>
+					{@location}
+					<div class="t11">
+					<repeat group="{@names}" key="{@i}" value="{@friend}">
+						<check if="{@i<3}">
+							<true>
+								<a href="{@friend.profile_url}" target="_blank">{@friend.name}</a><check if="{ @i < count(@names)-1 && @i!=2 }"><true>, </true></check>
+							</true>
+							<false>
+								<check if="{@i==3}">
+									<true>
+										and <a href="#">{count(@names)-3} more</a>
+									</true>
+								</check>
+							</false>
+						</check>
+					</repeat>
+					live{count(@names)==1?'s':''} here.
+					</div>
+				</li>
+			</repeat>
+			</ul>
+		</div>
+	</div>
+	<div id="footer">
+		<div class="inner">
+		</div>
+	</div>
+</body>
+</html>

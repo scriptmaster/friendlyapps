@@ -28,6 +28,20 @@ foreach ($modules as $key=>$mod)
 
 F3::set('modules',$modules);
 
-echo F3::serve('F3/welcome.htm');
+F3::set('IMPORTS','inc/');
+// F3::route('GET /',':main|:home');
+F3::route('GET /',':main');
+F3::route('POST /',':main');
+
+F3::route('GET /stage',':stage');
+F3::route('POST /stage',':stage');
+
+
+// F3::route('GET /login',':main|:login');
+// F3::route('GET /wiki/@term',':main|:auth|:wikiterm');
+// F3::route('GET /blog/@page',':main|:auth|:blogpage');
+
+F3::run();
+// echo F3::serve('F3/welcome.htm');
 
 ?>

@@ -1,0 +1,24 @@
+Requirement: Linux， GTK， X11
+Tested on:SuSe 10.0, Fedora 4 and 5
+
+
+How to use html2image Linux in php script:
+
+1. Extract the new package to a folder (for exampe /html2image)
+	
+2. add the folder path (/html2image) to /etc/ld.so.conf
+   run ldconfig on command line to enable the changes.
+
+3. run nweb
+    ./nweb 8181 /html2image
+   
+   the small web server for html to image is started.
+
+4. You can call the web server in php script.
+   see html2imagetest.php for example. Please change the IP to your server IP. 
+
+   
+
+
+  
+  

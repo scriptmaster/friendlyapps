@@ -783,6 +783,7 @@ final class F3 extends Core {
 		krsort($routes);
 		// Save the current time
 		$time=time();
+		
 		foreach ($routes as $regex=>$route) {
 			if (!preg_match($regex,
 				substr($_SERVER['REQUEST_URI'],strlen(self::$global['BASE'])),
