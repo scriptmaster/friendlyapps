@@ -33,6 +33,8 @@ F3::set('IMPORTS','inc/');
 F3::route('GET /',':main');
 F3::route('POST /',':main');
 
+F3::route('GET /locations',':locations');
+
 F3::route('GET /stage',':stage');
 F3::route('POST /stage',':stage');
 

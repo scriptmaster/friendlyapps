@@ -10,7 +10,8 @@
 	<script>
 		var my = {
 			name: '{@my.name}',
-			pic_square: '{@my.pic_square}'
+			pic_square: '{@my.pic_square}',
+			location: '{@my_location}'
 		}
 	</script>
 
@@ -19,14 +20,14 @@
 	<div id="header">
 		<div class="inner">
 			<div id="my_image"><img src="{@my.pic_square}" title="{@my.name}'s Pic" alt="{@my.name}'s Pic" /></div>
-			<h1 id="my">{@my.name}<div>{@my_location}</div></h1>
+			<div id="my"><a href="{@my.profile_url}">{@my.name}</a><div>{@my_location}</div></div>
 			<br clear="both" />
 		</div>
 	</div>
 	<div id="content">
 		<div class="inner">
 			
-			<h2>Current locations of your friends and your travel plan</h2>
+			<h2>The shortest way you should use to visit all your Facebook friends in various cities</h2>
 			
 			<ul id="locations">
 			<repeat group="{@locations}" key="{@location}" value="{@names}">
@@ -40,8 +41,7 @@
 							</true>
 							<false>
 								<check if="{@i==3}">
-									<true>
-										and <a href="#">{count(@names)-3} more</a>
+									<true><span> and <a class="more">{count(@names)-3} more</a></span>
 									</true>
 								</check>
 							</false>
@@ -49,6 +49,11 @@
 					</repeat>
 					{count(@names)==1?'is':'are'} located here.
 					</div>
+
+					<check if="{@i>=3}"><true>
+
+					
+					</true></check>
 				</li>
 			</repeat>
 			</ul>

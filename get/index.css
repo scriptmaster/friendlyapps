@@ -121,14 +121,14 @@ ul#locations > li > ul > li {
 }
 
 
-h1#my {
+#my {
 	float: left;
 	margin: 12px 10px;
 	font-size: 18px;
 	color: #333;
 }
 
-h1#my div {
+#my div {
 	font-size: 16px;
 	font-weight: normal;
 	color: #686f7a;
