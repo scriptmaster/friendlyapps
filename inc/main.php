@@ -4,21 +4,23 @@ require '../php-sdk/src/facebook.php';
 
 // Create our Application instance (replace this with your appId and secret).
 $facebook = new Facebook(array(
-	'appId'  => '114087885347718', // YOUR_APP_ID
-	'secret' => '5bea038dc9e108eac2d94e21c31b48d3', // YOUR_APP_SECRET
+	'appId'  => 'YOUR_APP_ID'
+	'secret' => 'YOUR_APP_SECRET'
 ));
 
 // Get User ID
 $user = $facebook->getUser();
+/*
 if ($user) {
   try {
     // Proceed knowing you have a logged in user who's authenticated.
-    $user_profile = $facebook->api('/me');
+    // $user_profile = $facebook->api('/me');
   } catch (FacebookApiException $e) {
     error_log($e);
     $user = null;
   }
 }
+*/
 
 // Login or logout url will be needed depending on current user state.
 if ($user) {
@@ -56,12 +58,9 @@ if ( $accessedFromAppsURL ) {
 		}
 
 		F3::set('my', $my);
-		
-		// $result = $facebook->api( array('method'=>'fql.query', 'query'=>'SELECT name, current_location, hometown_location FROM user WHERE uid=me() OR uid IN (SELECT uid2 FROM friend WHERE uid1 = me())') );
 		$result = $facebook->api( array('method'=>'fql.query', 'query'=>'SELECT name, profile_url, current_location, hometown_location FROM user WHERE uid IN (SELECT uid2 FROM friend WHERE uid1 = me())') );
-		//echo '<hr />';
-		
-		
+
+
 		$locations = array();
 		
 		for( $i = 0, $ii = count($result); $i < $ii; ++$i ) {
@@ -71,12 +70,7 @@ if ( $accessedFromAppsURL ) {
 			if (isset($result[$i]['current_location'])) {
 				$location = get_location($result[$i]['current_location']);
 			} else if (isset($result[$i]['hometown_location'])) {
-				/*
-				if (isset($result[$i]['hometown_location']['name']))
-					$location = $result[$i]['hometown_location']['name'];	
-				if (isset($result[$i]['hometown_location']['city']))
-					$location = $result[$i]['hometown_location']['city'].( isset($result[$i]['hometown_location']['state']) ? ', '.$result[$i]['hometown_location']['state'] : '' ).( isset($result[$i]['hometown_location']['country']) ? ', '.$result[$i]['hometown_location']['country'] : '' );
-				*/
+				$location = get_location($result[$i]['hometown_location']);
 			}
 
 			if (!empty($location)) {
@@ -86,17 +80,15 @@ if ( $accessedFromAppsURL ) {
 
 		}
 
-		// echo 'LOCATIONS:<br />';
-		// print_r($locations);
+		// Sort Locations
 		ksort($locations);
 		
 		$renderMode = 'SERVER';
-		
+		F3::set('renderMode', $renderMode);
+
 		if ($renderMode == 'CLIENT') {
-			// print_r( $locations );
 			F3::set('locations', $locations);
 		} else {
-			// print_r( array_keys( $locations ) );
 
 			$addresses = array_keys( $locations ); //destination_addresses
 			$destinations = implode( '|', $addresses );
@@ -104,12 +96,9 @@ if ( $accessedFromAppsURL ) {
 			$url = 'http://maps.googleapis.com/maps/api/distancematrix/json?origins='.urlencode($my_location).'&destinations='.urlencode($destinations).'&sensor=false';
 			$matrix = json_decode( file_get_contents($url) );
 
-			// print_r( $url );
-
 			$ordered_locations = array(); // in the route order
 			$missed_locations = array();
 	
-			// print_r( $matrix );
 			if ( !empty( $matrix ) && $matrix->status=='OK' ) {
 	
 				$merged_locations = array();
@@ -123,11 +112,7 @@ if ( $accessedFromAppsURL ) {
 				$dists = $matrix->rows[0]->elements;
 				
 				for($i=0, $ii=count($locations); $i<$ii; ++$i) {
-					// echo '<br/>'.$mda[$i];
-					// echo ' - '.$addresses[$i];
-					// echo ' ( ' . ($dists[$i]->status=='OK' ? $dists[$i]->distance->value : $dists[$i]->status) . ' ) ';
 					if ( $dists[$i]->status == 'OK' ) {
-						// $key = htmlentities($matrix->destination_addresses[$i]);
 						$key = $mda[$i];
 						if (isset($merged_locations[ $key ])) {
 							$merged_locations[ $key ] = array_merge( $merged_locations[ $key ], $locations[$addresses[$i]] );
@@ -144,20 +129,12 @@ if ( $accessedFromAppsURL ) {
 						}
 					}
 				}
-				// echo '<hr />';
-				// print_r( array_keys( $merged_locations ) );
-				// echo '<hr />';
-	
+
 				ksort( $distances );
-				// print_r( $distances );
+
 				foreach($distances as $d => $location) {
 					$ordered_locations[ $location ] = $merged_locations[ $location ];
 				}
-	
-				// $ordered_locations = array_merge( $ordered_locations );
-				// $destination = array_pop( $ordered_locations );
-	
-				// $orig_locations = array_keys($ordered_locations);
 	
 				$waypoints = array_keys($ordered_locations);
 				$myLocationExcluded = FALSE;
@@ -172,9 +149,7 @@ if ( $accessedFromAppsURL ) {
 				$url2 = 'http://maps.googleapis.com/maps/api/directions/json?origin='.urlencode($my_location).
 					'&destination='.urlencode($destination).
 					'&waypoints=optimize:true|'.urlencode( join('|', $waypoints) ).'&sensor=false';
-					
-				// print_r( $waypoints );
-	
+
 				$result = json_decode( file_get_contents($url2) );
 	
 				if ($result->status == 'OK') {
@@ -190,34 +165,47 @@ if ( $accessedFromAppsURL ) {
 						$optimized_locations[ $location ] = $ordered_locations[ $location ];
 					}
 	
-					// Add the destination //
+					// Add the destination, finally //
 					$optimized_locations[ $destination ] = $ordered_locations[ $destination ];
 	
 					// array_multisort( $ordered_locations, $result->routes[0]->waypoint_order );
 					// print_r( $result->routes[0]->waypoint_order );
 					if (count($optimized_locations)>0) {
 						$ordered_locations = $optimized_locations;
+						F3::set('optimizedOnServer', 1);
 					}
-	
 				}
-	
-				// echo '<a href="'.$url2.'" target="_blank">waypoints</a>';
 	
 			} else {
 				// echo 'Something went WRONG with Google Maps.';
 				// print_r( $matrix );
+				F3::set('optimizedOnServer', 0);
 				$ordered_locations = $locations;
 			}
-			// print_r( count($matrix['destination_addresses']) );
-			// print_r( count($addresses) );
-			
-			// echo '<a href="'.$url.'" target="_blank">matrix</a>';
 
 			F3::set('locations', $ordered_locations);
 			F3::set('missed_locations', $missed_locations);
 		}
 
-		function test_locations_display() {
+
+		
+		function map_locations($locations) {
+			
+			$markers = array();
+			$i = 65; // A;
+			foreach($locations as $location => $names) {
+				if ($i>90) $i=48;
+				$markers[] = 'markers=label:'.chr($i).'|'.$location;
+				// $paths[] = $location;
+				$i++;
+			}
+			
+			$url = 'http://maps.google.com/maps/api/staticmap?size=500x500&'.join('&',$markers).'&sensor=false';
+			//$url = 'http://maps.google.com/maps/api/staticmap?size=500x500&'.join('&',$markers).'&sensor=false&path='.join('|',array_keys($locations));
+			//$url = 'http://maps.google.com/maps/api/staticmap?size=500x500&sensor=false&path='.join('|',array_keys($locations));
+			
+			return $url;
+			
 			echo '<ul id="locations">';
 			foreach($locations as $location => $names) {
 				echo "<li>";
@@ -235,6 +223,10 @@ if ( $accessedFromAppsURL ) {
 			echo '</ul>';
 		}
 
+		$url = map_locations( F3::get('locations') );
+		F3::set('map_url', $url);
+
+
 	}
 
 } else {
@@ -244,7 +236,5 @@ if ( $accessedFromAppsURL ) {
 
 F3::set('title', 'The shortest way you should use to visit all your Facebook friends in various cities');
 echo F3::serve('html/main.htm');
-
-
 
 ?>
